@@ -14,11 +14,27 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - run: cmake . -DPATCH_VERSION=${{ github.run_number }}
+      - name: Install SFML
+        id: sfml
+        uses: oprypin/install-sfml@v1
+        with:
+          sfml: 2.6.1 
+          config: Release
+      - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DSFML_DIR="${{ steps.sfml.outputs.path }}"  
       - run: cmake --build .
-      - run: cmake --build . --target package
       - name: List files
         run: dir
+      - run: |
+          $DLL_DIR = "resources"  # Папка, где находятся ваши DLL-файлы
+          $dllFiles = Get-ChildItem "$DLL_DIR\*.dll"
+          if ($dllFiles) {
+            Copy-Item "$DLL_DIR\*.dll" ".\" -Force
+            Write-Host "DLL files copied successfully."
+          } else {
+            Write-Host "No DLL files found in $DLL_DIR."
+            exit 1
+          }
+      - run: cmake --build . --target package      
       - name: Create Release (windows)
         id: create_release_windows
         uses: actions/create-release@v1
@@ -47,6 +63,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
+      - run: sudo apt-get install libsfml-dev    
       - run: cmake . -DPATCH_VERSION=${{ github.run_number }}
       - run: cmake --build .
       - run: cmake --build . --target package

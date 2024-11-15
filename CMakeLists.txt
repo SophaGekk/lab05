@@ -42,9 +42,9 @@ add_executable(physics
 # связывание с SFML
 target_link_libraries(physics PRIVATE sfml-graphics)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")  # Флаг для компилятора MSVC (Windows)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-else()
+else() # Флаг для g++ и clang++ (Linux, MacOS) 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 endif()
 
