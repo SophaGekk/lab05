@@ -37,7 +37,8 @@ endif ()
 # добавление исполняемого файла
 add_executable(physics
         main.cpp World.cpp Ball.cpp Physics.cpp Color.cpp Painter.cpp Dust.cpp
-        black_box/Application.cpp black_box/View.cpp black_box/PainterImpl.cpp)
+        black_box/Application.cpp black_box/View.cpp black_box/PainterImpl.cpp
+        resources/sfml-system-2.dll resources/sfml-graphics-2.dll resources/sfml-window-2.dll)
 
 # связывание с SFML
 target_link_libraries(physics PRIVATE sfml-graphics)
