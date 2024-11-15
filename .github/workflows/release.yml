@@ -61,22 +61,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-       submodules: true
+        submodules: true
     - run: brew install sfml
-    - run: rm -rf dist build install # Clean up
-    - name: Configure CMake
-      run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DCMAKE_INSTALL_PREFIX=./install
-    - name: Build and Install
-      run: cmake --build . --target install
-    - name: Package with CPack
-      run: |
-        umask 0002
-        mkdir -p dist
-        cpack -G ZIP -C dist -vv # verbose output for debugging
-        if [ ! -f "dist/physics-0.0.${{ github.run_number }}-Darwin.zip" ]; then
-          echo "Error: CPack failed to create the package."
-        exit 1
-        fi
+    - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DCMAKE_INSTALL_PREFIX=`pwd`/install
+    - run: cmake --build . --target install # Install first
+    - run: cpack -G ZIP # Explicitly specify ZIP generator
     - name: Run Tests
       run: |
         ctest --output-on-failure || exit 1
@@ -84,7 +73,7 @@ jobs:
       id: create_release_macos
       uses: actions/create-release@v1
       env:
-       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.run_number }}
         release_name: Release ${{ github.run_number }} (MacOS)
@@ -94,10 +83,10 @@ jobs:
       id: upload-release-asset-macos
       uses: actions/upload-release-asset@v1
       env:
-       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release_macos.outputs.upload_url }}
-        asset_path: ./dist/physics-0.0.${{ github.run_number }}-Darwin.zip
+        asset_path: ./install/physics-0.0.${{ github.run_number }}-Darwin.zip #Path changed
         asset_name: physics-0.0.${{ github.run_number }}-Darwin.zip
         asset_content_type: application/zip
 
