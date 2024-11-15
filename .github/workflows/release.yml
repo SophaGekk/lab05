@@ -61,19 +61,21 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        submodules: true
+       submodules: true
     - run: brew install sfml
+    - run: rm -rf dist build install # Clean up
     - name: Configure CMake
       run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DCMAKE_INSTALL_PREFIX=./install
     - name: Build and Install
       run: cmake --build . --target install
     - name: Package with CPack
       run: |
-        mkdir -p dist # create a distribution directory
-        cpack -G ZIP -C dist # specify the output path explicitly
-          if [ ! -f "dist/physics-0.0.${{ github.run_number }}-Darwin.zip" ]; then
+        umask 0002
+        mkdir -p dist
+        cpack -G ZIP -C dist -vv # verbose output for debugging
+        if [ ! -f "dist/physics-0.0.${{ github.run_number }}-Darwin.zip" ]; then
           echo "Error: CPack failed to create the package."
-          exit 1
+        exit 1
         fi
     - name: Run Tests
       run: |
